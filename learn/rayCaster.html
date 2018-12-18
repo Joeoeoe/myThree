@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link type="text/css" href="../wheels/initCSS.css" rel="stylesheet">
+    <script src="../build/three.js"></script>
+    <script src="../package/utils/stats.min.js"></script>
+    <script src="../package/controller/OrbitControls.js"></script>
+</head>
+<body>
+<div id="threejs-output"></div>
+
+
+
+
+
+<script src="../wheels/$three.js"></script>
+<script>
+    let threeConf = $three.initThree();
+    let rayRaster = new THREE.Raycaster();
+    let mouse = new THREE.Vector2();
+    let selectedObj = null;
+
+
+    for(let i = 0; i < 500; i++){
+        let cubeGeo = new THREE.CubeGeometry(5,5,5);
+        let cubeMaterial = new THREE.MeshBasicMaterial({color:0x87CEEB});
+        let cubeMesh = new THREE.Mesh(cubeGeo, cubeMaterial);
+        let randomX = (Math.random() * 200 - 100);
+        let randomY = (Math.random() * 200 - 100);
+        let randomZ = (Math.random() * 200 - 100);
+        cubeMesh.position.x = randomX;
+        cubeMesh.position.y = randomY;
+        cubeMesh.position.z = randomZ;
+        threeConf.scene.add(cubeMesh);
+    }
+
+    function onMouseMove(event) {
+        //1.将屏幕坐标转为webgl坐标
+        //2.因为webgl坐标范围为[-1,1]，故需要相除进行标准化，化简后式子如下
+        mouse.x = (event.clientX/window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY/window.innerHeight) * 2 + 1;
+    }
+
+
+
+    render();
+    window.addEventListener('mousemove', onMouseMove, false);
+    function render() {
+        //射线射出
+        rayRaster.setFromCamera(mouse, threeConf.camera);
+        let intersects = rayRaster.intersectObjects(threeConf.scene.children);
+
+        //选中另一物体的情况，仍为同一物体则不需要更新
+        if(selectedObj !== intersects[0]){
+            selectedObj && selectedObj.object.material.color.set(0x87CEEB); //复原
+            intersects.length && intersects[0].object.material.color.set(0xff0000);
+            selectedObj = intersects[0];
+            document.body.style.cursor = "pointer";
+        }
+        //未选中物体情况
+        if(intersects[0] === undefined){
+            document.body.style.cursor = "auto";
+        }
+
+
+
+        threeConf.stats.update();
+        threeConf.renderer.render(threeConf.scene, threeConf.camera);
+        requestAnimationFrame(render);
+    }
+
+</script>
+</body>
+</html>

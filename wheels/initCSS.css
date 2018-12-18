@@ -1,0 +1,4 @@
+body,div,p,ul,ol,li,input{margin: 0;padding: 0}
+body{
+    overflow: hidden;
+}
