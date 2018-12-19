@@ -18,10 +18,8 @@
 <script src="../wheels/$three.js"></script>
 <script>
     let threeConf = $three.initThree();
-    let rayRaster = new THREE.Raycaster();
-    let mouse = new THREE.Vector2();
-    let selectedObj = null;
 
+    let selectedObj = null;
 
     for(let i = 0; i < 500; i++){
         let cubeGeo = new THREE.CubeGeometry(5,5,5);
@@ -35,23 +33,21 @@
         cubeMesh.position.z = randomZ;
         threeConf.scene.add(cubeMesh);
     }
-
+    let rayRaster = new THREE.Raycaster();
+    let mouse = new THREE.Vector2();
     function onMouseMove(event) {
         //1.将屏幕坐标转为webgl坐标
         //2.因为webgl坐标范围为[-1,1]，故需要相除进行标准化，化简后式子如下
         mouse.x = (event.clientX/window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY/window.innerHeight) * 2 + 1;
     }
-
-
-
-    render();
     window.addEventListener('mousemove', onMouseMove, false);
+    render();
+
     function render() {
         //射线射出
         rayRaster.setFromCamera(mouse, threeConf.camera);
         let intersects = rayRaster.intersectObjects(threeConf.scene.children);
-
         //选中另一物体的情况，仍为同一物体则不需要更新
         if(selectedObj !== intersects[0]){
             selectedObj && selectedObj.object.material.color.set(0x87CEEB); //复原
@@ -59,13 +55,10 @@
             selectedObj = intersects[0];
             document.body.style.cursor = "pointer";
         }
-        //未选中物体情况
+        //未选中任何物体情况
         if(intersects[0] === undefined){
             document.body.style.cursor = "auto";
         }
-
-
-
         threeConf.stats.update();
         threeConf.renderer.render(threeConf.scene, threeConf.camera);
         requestAnimationFrame(render);
